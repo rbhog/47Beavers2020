@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -47,9 +48,22 @@ public class BasicDriving extends OpMode
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
 
+    private DcMotor armRight = null;
+    private DcMotor armLeft = null;
+
+//    // declare motor speed variables
+//    double RF; double LF; double RR; double LR;
+//    // declare joystick position variables
+//    double X1; double Y1; double X2; double Y2;
+
 
     //Driving constants
     final private double TURN_EXPONENT = 1.5;
+    final private double LIFT_POWER = 0.6;
+
+    // operational constants
+    double joyScale = 1.0; //0.5;
+    double motorMax = 1.0; //0.6; // Limit motor power to this value for Andymark RUN_USING_ENCODER mode
 
 
 //    //Driving mode (tank/POV)
@@ -73,16 +87,32 @@ public class BasicDriving extends OpMode
         backLeft = hardwareMap.get(DcMotor.class, "back_left_drive");
         backRight = hardwareMap.get(DcMotor.class, "back_right_drive");
 
+//        armRight = hardwareMap.get(DcMotor.class, "arm_right");
+//        armLeft = hardwareMap.get(DcMotor.class, "arm_left");
+//        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+//        frontRight.setDirection(DcMotor.Direction.FORWARD);
+//        backLeft.setDirection(DcMotor.Direction.REVERSE);
+//        backRight.setDirection(DcMotor.Direction.FORWARD);
+
+
         //Encoder stuff
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+//        armRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        armLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+//        armRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        armLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
 
 
         // Tell the driver that initialization is complete.
@@ -105,24 +135,7 @@ public class BasicDriving extends OpMode
         double frontRight = 0;
         double backLeft = 0;
         double backRight = 0;
-//        if(driveMode == DRIVE_MODE_STRAFE){
-//            double drive = - gamepad1.left_stick_y;
-//            double turn = - gamepad1.left_stick_x;
-//            double turnAmount = - Math.signum(turn) * Math.pow(Math.abs(turn), TURN_EXPONENT);
-//            frontLeft = drive + turnAmount;
-//            frontRight = drive - turnAmount;
-//        } else if(driveMode == DRIVE_MODE_TANK){
-//            frontLeft = gamepad1.left_stick_y;
-//            frontRight = gamepad1.right_stick_y;
-//        } else{ //Just go with POV drive
-//            double drive = - gamepad1.left_stick_y;
-//            double turn = - gamepad1.left_stick_x;
-//            double turnAmount = - Math.signum(turn) * Math.pow(Math.abs(turn), TURN_EXPONENT);
-//            frontLeft = drive + turnAmount;
-//            frontRight = drive - turnAmount;
-//        }
 
-        //setDrivePowers(frontLeft, frontRight);
         //amount to change each motor by
         double drive = 0;
         double turn = 0;
@@ -130,43 +143,88 @@ public class BasicDriving extends OpMode
         boolean pivot;
 
         //drive forewards and strafeing
-        drive = - gamepad1.left_stick_y;
-        strafe = - gamepad1.left_stick_x;
-        turn = - gamepad1.right_stick_x;
-        pivot = gamepad1.right_stick_button;
-        if(Math.abs(drive)>.05){
-            frontLeft = drive;
-            frontRight = drive;
-            backLeft = drive;
-            backRight = drive;
-        }
-        else if(Math.abs(strafe)>.05){
-            frontLeft = drive;
-            frontRight = -drive;
-            backLeft = -drive;
-            backRight = drive;
-        }
-        else if(Math.abs(turn)>.05){
-            if(pivot){
-                if(turn<0){
-                    frontRight = - turn;
-                    backRight = - turn;
-                }
-                else{
-                    frontLeft = turn;
-                    backLeft = turn;
-                }
-            }
-            else{
-                frontLeft = turn;
-                frontRight = -turn;
-                backLeft = turn;
-                backRight = -turn;
-            }
-        }
+//        drive = - gamepad1.left_stick_y;
+//        telemetry.addData("$drive", drive);
+//        strafe = - gamepad1.left_stick_x;
+//        turn = - gamepad1.right_stick_x;
+//        pivot = gamepad1.right_stick_button;
+//
+//
+//
+//        if(Math.abs(drive)>.05){
+//            frontLeft = drive;
+//            frontRight = drive;
+//            backLeft = drive;
+//            backRight = drive;
+//        }
+//        else if(Math.abs(strafe)>.05){
+//            frontLeft = strafe;
+//            frontRight = -strafe;
+//            backLeft = -strafe;
+//            backRight = strafe;
+//        }
+//        else if(Math.abs(turn)>.05){
+//            if(pivot){
+//                if(turn<0){
+//                    frontRight = - turn;
+//                    backRight = - turn;
+//                }
+//                else{
+//                    frontLeft = turn;
+//                    backLeft = turn;
+//                }
+//            }
+//            else{
+//                frontLeft = turn;
+//                frontRight = -turn;
+//                backLeft = turn;
+//                backRight = -turn;
+//            }
+//        }
+
+        // declare motor speed variables
+        double RF; double LF; double RR; double LR;
+        // declare joystick position variables
+        double X1; double Y1; double X2; double Y2;
+
+        LF = 0; RF = 0; LR = 0; RR = 0;
+
+        // Get joystick values
+        Y1 = -gamepad1.right_stick_y * joyScale; // invert so up is positive
+        X1 = gamepad1.right_stick_x * joyScale;
+        Y2 = -gamepad1.left_stick_y * joyScale; // Y2 is not used at present
+        X2 = gamepad1.left_stick_x * joyScale;
+
+        // Forward/back movement
+        LF += Y1; RF += Y1; LR += Y1; RR += Y1;
+
+        // Side to side movement
+        LF += X1; RF -= X1; LR -= X1; RR += X1;
+
+        // Rotation movement
+        LF += X2; RF -= X2; LR += X2; RR -= X2;
+
+        // Clip motor power values to +-motorMax
+        LF = Math.max(-motorMax, Math.min(LF, motorMax));
+        RF = Math.max(-motorMax, Math.min(RF, motorMax));
+        LR = Math.max(-motorMax, Math.min(LR, motorMax));
+        RR = Math.max(-motorMax, Math.min(RR, motorMax));
+
+        this.frontRight.setPower(RF);
+        this.frontLeft.setPower(LF);
+        this.backRight.setPower(RR);
+        this.backLeft.setPower(LR);
+
+
+//        if (gamepad1.right_bumper) {
+//            setArmPowers(LIFT_POWER);
+//        } else if (gamepad1.left_bumper) {
+//            setArmPowers(-LIFT_POWER);
+//        }
 
 
         setDrivePowers(backLeft, backRight, frontLeft, frontRight);
+
         telemetry.update();
     }
 
@@ -176,6 +234,11 @@ public class BasicDriving extends OpMode
             telemetry.clearAll();
             telemetry.addData("So the match's over", "How'd it go?");
         }
+    }
+
+    public void setArmPowers(double power) {
+        armRight.setPower(power);
+        armLeft.setPower(-power);
     }
 
     public void setDrivePowers(double backLeftPower, double backRightPower, double frontLeftPower, double frontRightPower) {
