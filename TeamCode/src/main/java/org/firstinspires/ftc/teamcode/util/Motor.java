@@ -32,6 +32,8 @@ public class Motor {
 
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         previousTicks = new double[STEPS];
         previousTimes = new double[STEPS];
         for (int i = 0; i < STEPS; i++) {

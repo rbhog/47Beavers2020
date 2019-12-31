@@ -9,11 +9,13 @@ import org.firstinspires.ftc.teamcode.util.DriveMotion;
 import org.firstinspires.ftc.teamcode.util.Motion;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 @TeleOp(name = "BigBoyDriversOnly", group = "TeleOpModes")
 public class BigBoyDriving extends LinearOpMode {
     private Drivetrain drive;
     private DriveMotion motion;
+    private Intake intake;
 
     public void runOpMode() {
         drive = new Drivetrain(hardwareMap);
@@ -43,6 +45,8 @@ public class BigBoyDriving extends LinearOpMode {
             }
 
             motion.executeRate(movement);
+
+
         }
     }
 }
