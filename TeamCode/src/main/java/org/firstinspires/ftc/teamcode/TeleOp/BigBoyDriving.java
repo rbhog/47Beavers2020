@@ -42,12 +42,15 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 @TeleOp(name = "BigBoyDriversOnly", group = "TeleOpModes")
 public class BigBoyDriving extends LinearOpMode {
+    private ElapsedTime timer;
+
     private Drivetrain drive;
     private DriveMotion motion;
     private Intake intake;
 
     public void runOpMode() {
-        drive = new Drivetrain(hardwareMap);
+        timer = new ElapsedTime();
+        drive = new Drivetrain(hardwareMap, timer);
         motion = new DriveMotion(drive);
 
         waitForStart();

@@ -32,12 +32,24 @@ package org.firstinspires.ftc.teamcode.util;
 public class Motion {
     private double[] values = new double[4];
 
+    private dir move = dir.N;
+
     final int LENGTH = 4;
+
+    public enum dir {
+        N, F, S, R
+    }
+
 
     public Motion() {}
 
     Motion(double[] values) {
         this.values = values;
+    }
+
+    Motion(double[] values, dir move) {
+        this.values = values;
+        this.move = move;
     }
 
     public Motion add(Motion other) {

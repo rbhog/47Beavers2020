@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode.util;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 import java.util.concurrent.TimeUnit;
@@ -37,9 +39,25 @@ public class DriveMotion {
 
     private Drivetrain drive;
 
+    private ElapsedTime timer;
+    private ElapsedTime moveTimer = new ElapsedTime();
+
+    private double[] previousTimes;
+    private double[] previousTicks;
+
+    private final int STEPS = 2;
+
 
     public DriveMotion(Drivetrain robot) {
         this.drive = robot;
+        this.timer = drive.getTimer();
+
+        previousTicks = new double[STEPS];
+        previousTimes = new double[STEPS];
+        for (int i = 0; i < STEPS; i++) {
+            previousTimes[i] = timer.milliseconds();
+            previousTicks[i] = this.drive.getMotor(0).getEncoderPosition();
+        }
     }
 
     public void moveRate(double rate, double degrees) {
@@ -70,18 +88,30 @@ public class DriveMotion {
         }
     }
 
-    public void executeRate(Motion motion, long time) {
+    public void executeRate(Motion motion, double time, Motion.dir dir) {
         for (int i = 0; i != 4; ++i) {
             drive.getMotor(i).setRate(motion.getValue(i) * drive.getMaxMotorRate());
         }
 
-        try
-        {
-            Thread.sleep(time);
-        }
-        catch(InterruptedException ex)
-        {
-            Thread.currentThread().interrupt();
+        while (moveTimer.milliseconds() < time) {
+            for (int i = 0; i < STEPS - 1; i++) {
+                previousTimes[i] = previousTimes[i + 1];
+                previousTicks[i] = previousTicks[i + 1];
+            }
+
+            previousTimes[STEPS - 1] = timer.milliseconds();
+            previousTicks[STEPS - 1] = this.drive.getMotor(0).getEncoderPosition();
+
+            switch (dir) {
+                case F:
+                    drive.setGlobalY(drive.getGlobalX() + previousTicks[STEPS] - previousTicks[0]);
+                    break;
+                case S:
+                    drive.setGlobalX(drive.getGlobalX() + previousTicks[STEPS] - previousTicks[0]);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -109,7 +139,7 @@ public class DriveMotion {
 
         drive.getMotor(0).getEncoderPosition();
 
-        return new Motion(values);
+        return new Motion(values, Motion.dir.F);
 
     }
 
@@ -119,7 +149,7 @@ public class DriveMotion {
         values[drive.getFrontRight()] = -x;
         values[drive.getBackLeft()] = -x;
         values[drive.getBackRight()] = x;
-        return new Motion(values);
+        return new Motion(values, Motion.dir.S);
     }
 
     public Motion rotationMotion(double x) {
@@ -128,6 +158,6 @@ public class DriveMotion {
         values[drive.getFrontRight()] = -x;
         values[drive.getBackLeft()] = x;
         values[drive.getBackRight()] = -x;
-        return new Motion(values);
+        return new Motion(values, Motion.dir.R);
     }
 }

@@ -29,11 +29,14 @@
 
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import org.firstinspires.ftc.teamcode.util.Motion;
 import org.firstinspires.ftc.teamcode.util.Motor;
+import org.firstinspires.ftc.teamcode.util.DriveMotion;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -63,7 +66,9 @@ public class Drivetrain {
 
     private double globalX = 0.0, globalY = 0.0;
 
-    public Drivetrain(HardwareMap hardwareMap) {
+    private ElapsedTime timer;
+
+    public Drivetrain(HardwareMap hardwareMap, ElapsedTime timer) {
         motors = new Motor[4];
 
         for (int i = 0; i < 4; ++i) {
@@ -90,6 +95,8 @@ public class Drivetrain {
 
         gyro.initialize(parameters);
 
+        this.timer = timer;
+
     }
 
     public Motor getMotor(int index) {
@@ -109,7 +116,21 @@ public class Drivetrain {
      * @param y The ticks in the y-direction of the wanted location
      */
     public void driveToPosition(double x, double y) {
+        DriveMotion motion = new DriveMotion(this);
         double targetAngle = Math.atan(y / x);
+
+        while (globalX - x > 2) {
+            motion.executeRate(motion.rightwardsMotion(-0.4), 0.2, Motion.dir.S);
+        }
+        while (globalX - x < -2) {
+            motion.executeRate(motion.rightwardsMotion(0.4), 0.2, Motion.dir.S);
+        }
+        while (globalY - y > 2) {
+            motion.executeRate(motion.forwardMotion(-0.4), 0.2, Motion.dir.F);
+        }
+        while (globalY - y < -2) {
+            motion.executeRate(motion.forwardMotion(0.4), 0.2, Motion.dir.F);
+        }
     }
 
 
@@ -197,5 +218,20 @@ public class Drivetrain {
 
     public void setGlobalY(double globalY) {
         this.globalY = globalY;
+    }
+
+    /**
+     * Stop all actions for a specified amount of time (in milliseconds)
+     * @param milliseconds amount of time to wait
+     */
+    public void waitMilliseconds(double milliseconds){
+        //Reset the timer
+        timer.reset();
+        //Wait until the time inputted has fully elapsed
+        while(timer.milliseconds() < milliseconds);
+    }
+
+    public ElapsedTime getTimer() {
+        return this.timer;
     }
 }
