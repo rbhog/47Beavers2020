@@ -31,9 +31,12 @@ package org.firstinspires.ftc.teamcode.util;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
+import java.util.concurrent.TimeUnit;
+
 public class DriveMotion {
 
     private Drivetrain drive;
+
 
     public DriveMotion(Drivetrain robot) {
         this.drive = robot;
@@ -67,6 +70,22 @@ public class DriveMotion {
         }
     }
 
+    public void executeRate(Motion motion, long time) {
+        for (int i = 0; i != 4; ++i) {
+            drive.getMotor(i).setRate(motion.getValue(i) * drive.getMaxMotorRate());
+        }
+
+        try
+        {
+            Thread.sleep(time);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+
     public void executeDistance(Motion motion, double rate) {
         // each element of the motion is a number of ticks!
 
@@ -87,7 +106,11 @@ public class DriveMotion {
         values[drive.getFrontRight()] = x;
         values[drive.getBackLeft()] = x;
         values[drive.getBackRight()] = x;
+
+        drive.getMotor(0).getEncoderPosition();
+
         return new Motion(values);
+
     }
 
     public Motion rightwardsMotion(double x) {

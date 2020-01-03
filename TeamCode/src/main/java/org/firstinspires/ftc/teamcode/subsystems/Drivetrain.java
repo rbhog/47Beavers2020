@@ -30,8 +30,17 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import org.firstinspires.ftc.teamcode.util.Motor;
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 public class Drivetrain {
     private Motor[] motors;
@@ -41,11 +50,18 @@ public class Drivetrain {
     private int backRight = 1;
     private int backLeft = 3;
 
+    private BNO055IMU gyro;
+    private double globalAngle;
+
+    private Orientation lastAngles = new Orientation();
+
     private final double WHEEL_RADIUS = 4.0; //inches
     private final double PROPORTIONAL_CONSTANT = 0.2;
     private final double TICKS_PER_ROTATION = 288; //need to test
 
     private final double MAX_MOTOR_RATE = 1.0;
+
+    private double globalX = 0.0, globalY = 0.0;
 
     public Drivetrain(HardwareMap hardwareMap) {
         motors = new Motor[4];
@@ -63,6 +79,17 @@ public class Drivetrain {
         motors[frontRight].setDirection(DcMotor.Direction.REVERSE);
         motors[frontLeft].setDirection(DcMotor.Direction.FORWARD);
 
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode                = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
+
+        gyro = hardwareMap.get(BNO055IMU.class, "imu");
+
+        gyro.initialize(parameters);
+
     }
 
     public Motor getMotor(int index) {
@@ -74,6 +101,17 @@ public class Drivetrain {
             motor.proportionalUpdate();
         }
     }
+
+    /**
+     * Goes to the given coordinates
+     *
+     * @param x The ticks in the x-direction of the wanted location
+     * @param y The ticks in the y-direction of the wanted location
+     */
+    public void driveToPosition(double x, double y) {
+        double targetAngle = Math.atan(y / x);
+    }
+
 
     public double getTicksPerInch() {
         return TICKS_PER_ROTATION / (2 * Math.PI * WHEEL_RADIUS);
@@ -97,5 +135,67 @@ public class Drivetrain {
 
     public int getBackLeft() {
         return backLeft;
+    }
+
+    private double getAngle()
+    {
+        // We experimentally determined the Z axis is the axis we want to use for heading angle.
+        // We have to process the angle because the imu works in euler angles so the Z axis is
+        // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
+        // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
+
+        Orientation angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
+
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+
+        globalAngle += deltaAngle;
+
+        lastAngles = angles;
+
+        return globalAngle;
+    }
+
+    /**
+     * See if we are moving in a straight line and if not return a power correction value.
+     * @return Power adjustment, + is adjust left - is adjust right.
+     */
+    private double checkDirection(double targetAngle)
+    {
+        // The gain value determines how sensitive the correction is to direction changes.
+        // You will have to experiment with your robot to get small smooth direction changes
+        // to stay on a straight line.
+        double correction, angle, gain = .10;
+
+        angle = getAngle();
+
+        if (angle == targetAngle)
+            correction = 0;             // no adjustment.
+        else
+            correction = -angle;        // reverse sign of angle for correction.
+
+        correction = correction * gain;
+
+        return correction;
+    }
+
+    public double getGlobalX() {
+        return globalX;
+    }
+
+    public void setGlobalX(double globalX) {
+        this.globalX = globalX;
+    }
+
+    public double getGlobalY() {
+        return globalY;
+    }
+
+    public void setGlobalY(double globalY) {
+        this.globalY = globalY;
     }
 }
