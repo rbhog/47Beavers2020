@@ -13,7 +13,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 
 
-@Autonomous (name = "GOD IS DEAD", group = "Autonomous")
+@Autonomous (name = "GOD IS DEAD AND WE HAVE KILLED HIM - HARAMBE", group = "Autonomous")
 public class WomboCombo extends LinearOpMode {
 
     private ElapsedTime timer;
