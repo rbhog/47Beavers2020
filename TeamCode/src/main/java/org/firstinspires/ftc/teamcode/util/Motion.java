@@ -68,6 +68,8 @@ public class Motion {
         return new Motion(out);
     }
 
+
+
     double getValue(int i) {
         return values[i];
     }

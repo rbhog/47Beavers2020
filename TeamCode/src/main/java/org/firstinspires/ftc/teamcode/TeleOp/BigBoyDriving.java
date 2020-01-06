@@ -34,11 +34,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.subsystems.Elevator;
+import org.firstinspires.ftc.teamcode.subsystems.Hooks;
 import org.firstinspires.ftc.teamcode.util.DriveMotion;
+import org.firstinspires.ftc.teamcode.util.ElevatorMotion;
 import org.firstinspires.ftc.teamcode.util.Motion;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.util.OtherMotion;
 
 @TeleOp(name = "BigBoyDriversOnly", group = "TeleOpModes")
 public class BigBoyDriving extends LinearOpMode {
@@ -46,12 +50,20 @@ public class BigBoyDriving extends LinearOpMode {
 
     private Drivetrain drive;
     private DriveMotion motion;
-    private Intake intake;
+    private Elevator elevator;
+    private ElevatorMotion elevatorMotion;
+    private Hooks hooks;
 
     public void runOpMode() {
         timer = new ElapsedTime();
         drive = new Drivetrain(hardwareMap, timer);
         motion = new DriveMotion(drive);
+        elevator = new Elevator(hardwareMap);
+        elevatorMotion = new ElevatorMotion(elevator);
+        //hooks = new Hooks(hardwareMap);
+
+        boolean wantsActuate = true;
+
 
         waitForStart();
 
@@ -76,7 +88,16 @@ public class BigBoyDriving extends LinearOpMode {
                 movement = movement.add(motion.forwardMotion(0.6));
             }
 
+//            if (gamepad1.y) {
+//                wantsActuate = !wantsActuate;
+//                hooks.actuate(10);
+//            }
+
+
+            OtherMotion elevatorMovement = elevatorMotion.upwardsMotion(-gamepad2.left_stick_y).add(elevatorMotion.outwardsMotion(gamepad2.left_stick_x));
+
             motion.executeRate(movement);
+            elevatorMotion.executeRate(elevatorMovement);
 
 
         }

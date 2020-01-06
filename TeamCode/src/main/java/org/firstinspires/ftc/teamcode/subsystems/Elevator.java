@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -36,39 +37,67 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.util.Motor;
 
 public class Elevator {
-    private Motor elevator;
+    private Motor[] motors;
+    private CRServo[] outs;
+
+    private int elevatorRight = 0;
+    private int elevatorLeft = 1;
+    private int elevatorOutRight = 2;
+    private int elevatorOutLeft = 3;
 
     private final double PROPORTIONAL_CONSTANT = 0.2;
-    private final double TICKS_PER_ROTATION = 288;
+    private final double TICKS_PER_ROTATION = 1440;
+
+    private final double MAX_MOTOR_RATE = 1.0;
 
     public Elevator(HardwareMap hardwareMap) {
-        this.elevator = new Motor(
-                hardwareMap.get(DcMotor.class, "elevator"),
-                PROPORTIONAL_CONSTANT,
-                TICKS_PER_ROTATION
-        );
+        motors = new Motor[2];
+        outs = new CRServo[2];
 
-
-    }
-
-    public void liftToPosition(double targetTicks) {
-        double currentPos = elevator.getEncoderPosition();
-        if (currentPos > targetTicks) {
-            while (Math.abs(currentPos - targetTicks) > 1.2) {
-                elevator.setRawPower(-0.6);
-            }
-        } else {
-            while (Math.abs(currentPos - targetTicks) > 1.2) {
-                elevator.setRawPower(0.6);
-            }
+        for (int i = 0; i < 2; i++) {
+            motors[i] = new Motor(
+                    hardwareMap.get(DcMotor.class, "elevator" + Integer.toString(i + 1)),
+                    PROPORTIONAL_CONSTANT,
+                    TICKS_PER_ROTATION
+            );
         }
 
+        motors[elevatorRight].setDirection(DcMotorSimple.Direction.FORWARD);
+        motors[elevatorLeft].setDirection(DcMotorSimple.Direction.REVERSE);
 
-        elevator.setDirection(DcMotorSimple.Direction.FORWARD);
+        for (int i = 0; i < 2; i++) {
+            outs[i] = hardwareMap.get(CRServo.class, "elevator" + Integer.toString(i + 3));
+        }
+
+        outs[elevatorOutLeft - 2].setDirection(DcMotorSimple.Direction.FORWARD);
+        outs[elevatorOutRight - 2].setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
-    public void lift(double power) {
-        elevator.setRawPower(power);
+    public double getMaxMotorRate() {
+        return MAX_MOTOR_RATE;
     }
 
+    public int getElevatorRight() {
+        return elevatorRight;
+    }
+
+    public int getElevatorLeft() {
+        return elevatorLeft;
+    }
+
+    public int getElevatorOutRight() {
+        return elevatorOutRight;
+    }
+
+    public int getElevatorOutLeft() {
+        return elevatorOutLeft;
+    }
+
+//    public int getElevatorOut() {
+//        return elevatorOut;
+//    }
+
+    public Motor getMotor(int index) { return motors[index]; }
+
+    public CRServo getServo(int index) { return outs[index]; }
 }
