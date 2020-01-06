@@ -84,7 +84,9 @@ public class DriveMotion {
     public void executeRate(Motion motion) {
         for (int i = 0; i != 4; ++i) {
 //            drive.getDrive(i).setRate(motion.getValue(i));
-            drive.getMotor(i).setRate(motion.getValue(i) * drive.getMaxMotorRate());
+            if (motion.getValue(i) > 0.05 || motion.getValue(i) < -0.05) {
+                drive.getMotor(i).setRate(motion.getValue(i) * drive.getMaxMotorRate());
+            }
         }
     }
 

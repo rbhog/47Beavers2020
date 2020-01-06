@@ -11,10 +11,12 @@ public class ElevatorMotion {
 
     public void executeRate(OtherMotion motion) {
         for (int i = 0; i < 2; i++) {
+            if (motion.getValue(i) > 0.05 || motion.getValue(i) < -0.05)
             elevator.getMotor(i).setRate(motion.getValue(i) * elevator.getMaxMotorRate());
         }
 
         for (int i = 0; i < 2; i++) {
+            if (motion.getValue(i + 2) > 0.05 || motion.getValue(i+2) < -0.05)
             elevator.getServo(i).setPower(motion.getValue(i + 2));
         }
     }

@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-import android.graphics.Rect;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -11,6 +9,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Elevator;
 import org.firstinspires.ftc.teamcode.subsystems.Hooks;
 import org.firstinspires.ftc.teamcode.util.DriveMotion;
 import org.firstinspires.ftc.teamcode.util.ElevatorMotion;
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 
 
 @Autonomous (name = "GOD IS DEAD", group = "Autonomous")
