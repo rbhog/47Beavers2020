@@ -53,6 +53,7 @@ public class BigBoyDriving extends LinearOpMode {
     private Elevator elevator;
     private ElevatorMotion elevatorMotion;
     private Hooks hooks;
+    private Intake intake;
 
     public void runOpMode() {
         timer = new ElapsedTime();
@@ -60,20 +61,20 @@ public class BigBoyDriving extends LinearOpMode {
         motion = new DriveMotion(drive);
         elevator = new Elevator(hardwareMap);
         elevatorMotion = new ElevatorMotion(elevator);
-        //hooks = new Hooks(hardwareMap);
+        intake = new Intake(hardwareMap);
+        hooks = new Hooks(hardwareMap);
 
-        boolean wantsActuate = true;
-
+        boolean wantsReverse = false;
+        boolean wantsDown = false;
 
         waitForStart();
 
-        boolean flag = false;
 
         while (opModeIsActive()) {
             telemetry.addData("Status", "Initialized");
             telemetry.update();
 
-            Motion movement = motion.rightwardsMotion(gamepad1.left_stick_x).add(motion.forwardMotion(-gamepad1.left_stick_y)).add(motion.rotationMotion(gamepad1.right_stick_x));
+            Motion movement = motion.rightwardsMotion(-gamepad1.left_stick_x).add(motion.forwardMotion(-gamepad1.left_stick_y)).add(motion.rotationMotion(-gamepad1.right_stick_x));
 
             if (gamepad1.dpad_left) {
                 movement = movement.add(motion.forwardMotion(-0.3));
@@ -88,11 +89,26 @@ public class BigBoyDriving extends LinearOpMode {
                 movement = movement.add(motion.forwardMotion(0.6));
             }
 
-//            if (gamepad1.y) {
-//                wantsActuate = !wantsActuate;
-//                hooks.actuate(10);
-//            }
+            if (gamepad1.x) {
+                wantsDown = !wantsDown;
+                hooks.actuate(wantsDown);
+            }
 
+            while (gamepad2.x) {
+                intake.actuate(0.5);
+            }
+            while (gamepad2.a) {
+                intake.actuate(-0.5);
+            }
+
+            if (!gamepad2.x && !gamepad2.a) {
+                intake.actuate(0.0);
+            }
+
+            if (gamepad1.a) {
+                wantsReverse = !wantsReverse;
+                drive.reverse(wantsReverse);
+            }
 
             OtherMotion elevatorMovement = elevatorMotion.upwardsMotion(-gamepad2.left_stick_y).add(elevatorMotion.outwardsMotion(gamepad2.left_stick_x));
 

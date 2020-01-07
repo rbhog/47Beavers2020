@@ -67,7 +67,7 @@ public class Motor {
         double rateDelta = rate - currentRate;
         double power = motor.getPower() + rateDelta * proportionalConstant;
         double newPower = Math.min(-1.0, Math.max(power, 1.0));
-        motor.setPower(newPower);
+        //motor.setPower(newPower);
 
         motor.setPower(rate);
 

@@ -34,6 +34,7 @@ import org.firstinspires.ftc.teamcode.util.Motor;
 import org.firstinspires.ftc.teamcode.util.DriveMotion;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -97,6 +98,20 @@ public class Drivetrain {
 
         this.timer = timer;
 
+    }
+
+    public void reverse(boolean reverse) {
+        if (reverse) {
+            motors[backRight].setDirection(DcMotor.Direction.FORWARD);
+            motors[backLeft].setDirection(DcMotor.Direction.REVERSE);
+            motors[frontRight].setDirection(DcMotor.Direction.FORWARD);
+            motors[frontLeft].setDirection(DcMotor.Direction.REVERSE);
+        } else {
+            motors[backRight].setDirection(DcMotor.Direction.REVERSE);
+            motors[backLeft].setDirection(DcMotor.Direction.FORWARD);
+            motors[frontRight].setDirection(DcMotor.Direction.REVERSE);
+            motors[frontLeft].setDirection(DcMotor.Direction.FORWARD);
+        }
     }
 
     public Motor getMotor(int index) {

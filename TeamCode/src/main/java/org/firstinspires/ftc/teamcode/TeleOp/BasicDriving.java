@@ -231,7 +231,7 @@ public class BasicDriving extends OpMode
     public void stop() {
         if(COMPETITION_MODE){
             telemetry.clearAll();
-            telemetry.addData("So the match's over", "How'd it go?");
+            telemetry.addData("GOD IS DEAD", "BIG JUDGE THIS IS UR FAULT <3 PETER");
         }
     }
 

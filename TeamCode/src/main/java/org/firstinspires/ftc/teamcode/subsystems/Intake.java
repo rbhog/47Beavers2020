@@ -35,20 +35,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Intake {
 
     private final DcMotor motor;
-    private boolean wantsRetract = false;
 
     public Intake(HardwareMap hardwareMap) {
         this.motor = hardwareMap.get(DcMotor.class, "intake");
     }
 
-    public void actuate() {
-        motor.setPower(0.7);
-
-        try {
-            Thread.sleep(70);
-        } catch (InterruptedException e) {
-
-        }
+    public void actuate(double power) {
+        this.motor.setPower(power);
     }
 
 

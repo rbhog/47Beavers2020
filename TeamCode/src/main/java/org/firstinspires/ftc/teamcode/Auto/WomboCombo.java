@@ -39,8 +39,7 @@ public class WomboCombo extends LinearOpMode {
         Mat img2 = new Mat(wholeImage, block2);
         Mat img3 = new Mat(wholeImage, block3);
 
-
-
+        return 0;
     }
     public void runOpMode() {
         timer = new ElapsedTime();
