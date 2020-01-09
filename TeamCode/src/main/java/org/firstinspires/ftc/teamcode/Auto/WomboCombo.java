@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
+import android.graphics.Bitmap;
+import android.os.Environment;
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,10 +14,19 @@ import org.firstinspires.ftc.teamcode.subsystems.Hooks;
 import org.firstinspires.ftc.teamcode.util.DriveMotion;
 import org.firstinspires.ftc.teamcode.util.ElevatorMotion;
 import org.firstinspires.ftc.teamcode.util.SamplePipeline;
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.CvException;
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 @Autonomous (name = "GOD IS DEAD AND WE HAVE KILLED HIM - HARAMBE", group = "Autonomous")
@@ -35,7 +48,7 @@ public class WomboCombo extends LinearOpMode {
         int height=0;
         Rect[] rects = new Rect[3];
         Mat[] mats = new Mat[3];
-        int[] diffs = new int[3];
+        double[] diffs = new double[3];
         for(int i=0;i<3;i++){
             rects[i] = new Rect(startx + width * i, starty, width, height);
         }
@@ -56,7 +69,55 @@ public class WomboCombo extends LinearOpMode {
             double rMean = Core.mean(rCnl).val[0];
             diffs[i] = Math.abs(25 - bMean) + Math.abs(132-gMean) + Math.abs(213-rMean); 
         }
-        diffs[0] > diffs[1] && diffs[0] > diffs[2] ? return 0 : diffs[1]>diffs[2] ? return 1 : return 2;
+        //0 -> left, 1 -> middle, 2 -> right
+        //coords might be wrong
+        return diffs[0] > diffs[1] && diffs[0] > diffs[2] ? 0 : diffs[1]>diffs[2] ? 1 : 2;
+    }
+
+    private void saveImage(Mat subimg, String filename) {
+        Bitmap bmp = null;
+        try {
+            bmp = Bitmap.createBitmap(subimg.cols(), subimg.rows(), Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(subimg, bmp);
+        } catch (CvException e) {
+            Log.d("Autonomous vision", e.getMessage());
+        }
+
+        subimg.release();
+
+
+        FileOutputStream out = null;
+
+
+
+        File sd = new File(Environment.getExternalStorageDirectory() + "/frames");
+        boolean success = true;
+        if (!sd.exists()) {
+            success = sd.mkdir();
+        }
+        if (success) {
+            File dest = new File(sd, filename);
+
+            try {
+                out = new FileOutputStream(dest);
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                // PNG is a lossless format, the compression factor (100) is ignored
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d("Autonomous vision", e.getMessage());
+            } finally {
+                try {
+                    if (out != null) {
+                        out.close();
+                        Log.d("Autonomous vision", "OK!!");
+                    }
+                } catch (IOException e) {
+                    Log.d("Autonomous vision", e.getMessage() + "Error");
+                    e.printStackTrace();
+                }
+            }
+        }
     }
     public void runOpMode() {
         timer = new ElapsedTime();
