@@ -32,16 +32,29 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.util.Motor;
+
 public class Intake {
 
-    private final DcMotor motor;
+    private final Motor motor;
+
+    private final double PROPORTIONAL_CONSTANT = 0.2;
+    private final double TICKS_PER_REVOLUTION = 1440;
 
     public Intake(HardwareMap hardwareMap) {
-        this.motor = hardwareMap.get(DcMotor.class, "intake");
+        this.motor = new Motor(
+            hardwareMap.get(DcMotor.class, "intake"),
+            PROPORTIONAL_CONSTANT,
+            TICKS_PER_REVOLUTION
+        );
     }
 
     public void actuate(double power) {
-        this.motor.setPower(power);
+        if (motor.getEncoderPosition() < 700 && motor.getEncoderPosition() > -700) {
+            this.motor.setRawPower(power);
+        } else {
+            this.motor.setRawPower(0.0);
+        }
     }
 
 
