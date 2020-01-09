@@ -27,23 +27,37 @@ public class WomboCombo extends LinearOpMode {
     private DriveMotion driveMotion;
     private ElevatorMotion elevatorMotion;
 
-//    private int selectPath(Mat wholeImage){
-//        //need to be set
-//        int startx=0;
-//        int starty=0;
-//        int width=0;
-//        int height=0;
-//
-//        Rect block1 = new Rect(startx, starty, width, height);
-//        Rect block2 = new Rect(startx + width, starty, width, height);
-//        Rect block3 = new Rect(startx + width*2, starty, width, height);
-//
-//        Mat img1 = new Mat(wholeImage, block1);
-//        Mat img2 = new Mat(wholeImage, block2);
-//        Mat img3 = new Mat(wholeImage, block3);
-//
-//        return 0;
-//    }
+    private int selectPath(Mat wholeImage){
+        //need to be set
+        int startx=0;
+        int starty=0;
+        int width=0;
+        int height=0;
+        Rect[] rects = new Rect[3];
+        Mat[] mats = new Mat[3];
+        int[] diffs = new int[3];
+        for(int i=0;i<3;i++){
+            rects[i] = new Rect(startx + width * i, starty, width, height);
+        }
+        for(int i=0;i<3;i++){
+            mats[i] = new Mat(wholeImage, rects[i]);
+        }
+        for(int i=0;i<3;i++){
+            Mat m = mats[i];
+            Mat bCnl = new Mat();
+            Core.extractChannel(m, bCnl, 0);
+            Mat gCnl = new Mat();
+            Core.extractChannel(m, gCnl, 1);
+            Mat rCnl = new Mat();
+            Core.extractChannel(m, rCnl, 2);
+            // get mean value
+            double bMean = Core.mean(bCnl).val[0];
+            double gMean = Core.mean(gCnl).val[0];
+            double rMean = Core.mean(rCnl).val[0];
+            diffs[i] = Math.abs(25 - bMean) + Math.abs(132-gMean) + Math.abs(213-rMean); 
+        }
+        diffs[0] > diffs[1] && diffs[0] > diffs[2] ? return 0 : diffs[1]>diffs[2] ? return 1 : return 2;
+    }
     public void runOpMode() {
         timer = new ElapsedTime();
         drivetrain = new Drivetrain(hardwareMap, timer);
