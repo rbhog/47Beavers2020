@@ -119,6 +119,11 @@ public class WomboCombo extends LinearOpMode {
             }
         }
     }
+    private Mat takePic(){
+        ourPipeline.request();
+        thread.sleep(100); //wait a decent amt of time...can be changed
+        return ourPipeline.getImage();
+    }
     public void runOpMode() {
         timer = new ElapsedTime();
         drivetrain = new Drivetrain(hardwareMap, timer);
