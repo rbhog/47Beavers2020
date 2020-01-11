@@ -62,7 +62,7 @@ public class Elevator {
             );
         }
 
-        motors[elevatorRight].setDirection(DcMotorSimple.Direction.FORWARD);
+        motors[elevatorRight].setDirection(DcMotorSimple.Direction.REVERSE);
         motors[elevatorLeft].setDirection(DcMotorSimple.Direction.REVERSE);
 
         for (int i = 0; i < 2; i++) {

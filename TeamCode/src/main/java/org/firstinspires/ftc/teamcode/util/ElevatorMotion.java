@@ -11,22 +11,25 @@ public class ElevatorMotion {
 
     public void executeRate(OtherMotion motion) {
         for (int i = 0; i < 2; i++) {
-            if (motion.getValue(i) > 0.05 || motion.getValue(i) < -0.05)
             elevator.getMotor(i).setRate(motion.getValue(i) * elevator.getMaxMotorRate());
         }
 
         for (int i = 0; i < 2; i++) {
-            if (motion.getValue(i + 2) > 0.05 || motion.getValue(i+2) < -0.05)
             elevator.getServo(i).setPower(motion.getValue(i + 2));
         }
     }
 
     public OtherMotion upwardsMotion(double x) {
+
         double[] values = new double[4];
         values[0] = x;
         values[1] = x;
         values[2] = 0;
         values[3] = 0;
+//        if(elevator.getMotor(0).getEncoderPosition() < 0 && x < 0){
+//            values[0] = 0;
+//            values[1] = 0;
+//        }
         return new OtherMotion(values);
     }
 

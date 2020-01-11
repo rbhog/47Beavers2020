@@ -51,11 +51,12 @@ public class Intake {
 
     //TODO BHOG UR CODE IS WRONG
     public void actuate(double power) {
-        if (motor.getEncoderPosition() < 700 && motor.getEncoderPosition() > -700) {
-            this.motor.setRawPower(power);
-        } else {
-            this.motor.setRawPower(0.0);
-        }
+//        if (motor.getEncoderPosition() < 700 && motor.getEncoderPosition() > -700) {
+//            this.motor.setRawPower(power);
+//        } else if ((power > 0 && motor.getEncoderPosition() > 700) || (power < 0 && motor.getEncoderPosition() < -700)){
+//            this.motor.setRawPower(0.0);
+//        }
+        this.motor.setRawPower(power);
     }
 
 

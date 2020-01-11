@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Elevator;
 import org.firstinspires.ftc.teamcode.subsystems.Hooks;
 import org.firstinspires.ftc.teamcode.util.DriveMotion;
 import org.firstinspires.ftc.teamcode.util.ElevatorMotion;
+import org.firstinspires.ftc.teamcode.util.Motion;
 import org.firstinspires.ftc.teamcode.util.SamplePipeline;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
@@ -39,6 +40,8 @@ public class WomboCombo extends LinearOpMode {
 
     private DriveMotion driveMotion;
     private ElevatorMotion elevatorMotion;
+
+    SamplePipeline ourPipeline = new SamplePipeline();
 
     private int selectPath(Mat wholeImage){
         //need to be set
@@ -121,7 +124,7 @@ public class WomboCombo extends LinearOpMode {
     }
     private Mat takePic(){
         ourPipeline.request();
-        thread.sleep(100); //wait a decent amt of time...can be changed
+        sleep(100); //wait a decent amt of time...can be changed
         return ourPipeline.getImage();
     }
     public void runOpMode() {
@@ -138,7 +141,6 @@ public class WomboCombo extends LinearOpMode {
 
         phoneCam.openCameraDevice();
 
-        SamplePipeline ourPipeline = new SamplePipeline();
 
         phoneCam.setPipeline(ourPipeline);
 
@@ -156,7 +158,84 @@ public class WomboCombo extends LinearOpMode {
             telemetry.update();
 
 
+
+
+
+
         }
+    }
+
+    public void skystone() {
+        //move right towards skystone
+        Motion movement = driveMotion.rightwardsMotion(0.7);
+        driveMotion.executeRate(movement);
+        sleep(500);
+
+        //move forwards towards stones
+        movement = driveMotion.forwardMotion(0.5);
+        driveMotion.executeRate(movement);
+        sleep(200);
+
+        int skystone = selectPath(takePic());
+        switch(skystone) {
+            case 0:
+                movement = driveMotion.rightwardsMotion(-0.5);
+                driveMotion.executeRate(movement);
+                sleep(100);
+                movement = driveMotion.forwardMotion(0.5);
+                driveMotion.executeRate(movement);
+                sleep(100);
+                break;
+            case 1:
+                movement = driveMotion.forwardMotion(0.5);
+                driveMotion.executeRate(movement);
+                sleep(100);
+                break;
+            case 2:
+                movement = driveMotion.rightwardsMotion(0.5);
+                driveMotion.executeRate(movement);
+                sleep(100);
+                movement = driveMotion.forwardMotion(0.5);
+                driveMotion.executeRate(movement);
+                sleep(100);
+        }
+        //intake stuff goes here
+        movement = driveMotion.forwardMotion(0.7);
+        driveMotion.executeRate(movement);
+        sleep(200);
+        movement = driveMotion.rotationMotion(-0.7);
+        driveMotion.executeRate(movement);
+        sleep(50);
+
+        //yeet along the wall
+        movement = driveMotion.forwardMotion(1);
+        sleep(skystone==0 ? 2000 : skystone==1 ? 2100 : 2200);
+        driveMotion.executeRate(movement);
+
+        //turn and get platform
+        movement = driveMotion.rotationMotion(0.7);
+        driveMotion.executeRate(movement);
+        sleep(50);
+        movement = driveMotion.forwardMotion(0.7);
+        driveMotion.executeRate(movement);
+        sleep(200);
+
+        //move platform bacc
+        movement = driveMotion.forwardMotion(-0.7);
+        driveMotion.executeRate(movement);
+        sleep(200);
+        movement = driveMotion.rotationMotion(-0.7);
+        driveMotion.executeRate(movement);
+        sleep(50);
+        movement = driveMotion.rightwardsMotion(-0.7);
+        driveMotion.executeRate(movement);
+        sleep(200);
+
+        //get to the finish line
+        movement = driveMotion.forwardMotion(-0.7);
+        driveMotion.executeRate(movement);
+        sleep(200);
+
     }
 
 

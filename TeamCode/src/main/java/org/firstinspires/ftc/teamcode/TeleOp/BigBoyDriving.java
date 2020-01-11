@@ -34,6 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.subsystems.Capstone;
 import org.firstinspires.ftc.teamcode.subsystems.Elevator;
 import org.firstinspires.ftc.teamcode.subsystems.Hooks;
 import org.firstinspires.ftc.teamcode.util.DriveMotion;
@@ -54,6 +55,7 @@ public class BigBoyDriving extends LinearOpMode {
     private ElevatorMotion elevatorMotion;
     private Hooks hooks;
     private Intake intake;
+    private Capstone capstone;
 
     public void runOpMode() {
         timer = new ElapsedTime();
@@ -63,6 +65,7 @@ public class BigBoyDriving extends LinearOpMode {
         elevatorMotion = new ElevatorMotion(elevator);
         intake = new Intake(hardwareMap);
         hooks = new Hooks(hardwareMap);
+        capstone = new Capstone(hardwareMap);
 
         boolean wantsReverse = false;
         boolean wantsDown = false;
@@ -74,7 +77,11 @@ public class BigBoyDriving extends LinearOpMode {
             telemetry.addData("Status", "Initialized");
             telemetry.update();
 
-            Motion movement = motion.rightwardsMotion(-gamepad1.left_stick_x).add(motion.forwardMotion(-gamepad1.left_stick_y)).add(motion.rotationMotion(-gamepad1.right_stick_x));
+            hooks.actuate(-0.7);
+            sleep(700);
+            hooks.actuate(0.0);
+
+            Motion movement = motion.rightwardsMotion(gamepad1.left_stick_x).add(motion.forwardMotion(-gamepad1.left_stick_y)).add(motion.rotationMotion(gamepad1.right_stick_x * (!wantsReverse ? 1.0 : -1.0)));
 
             if (gamepad1.dpad_left) {
                 movement = movement.add(motion.forwardMotion(-0.3));
@@ -91,17 +98,24 @@ public class BigBoyDriving extends LinearOpMode {
 
             if (gamepad1.x) {
                 wantsDown = !wantsDown;
-                hooks.actuate(wantsDown);
+                if (wantsDown) {
+                    hooks.actuate(0.7);
+                    sleep(100);
+                } else {
+                    hooks.actuate(-0.7);
+                    sleep(100);
+                }
+                hooks.actuate(0.0);
             }
 
-            while (gamepad2.x) {
+            while (gamepad1.right_trigger > 0) {
                 intake.actuate(0.5);
             }
-            while (gamepad2.a) {
+            while (gamepad1.left_trigger > 0) {
                 intake.actuate(-0.5);
             }
 
-            if (!gamepad2.x && !gamepad2.a) {
+            if (!(gamepad1.right_trigger > 0) && !(gamepad1.left_trigger > 0)) {
                 intake.actuate(0.0);
             }
 
@@ -110,7 +124,9 @@ public class BigBoyDriving extends LinearOpMode {
                 drive.reverse(wantsReverse);
             }
 
-            OtherMotion elevatorMovement = elevatorMotion.upwardsMotion(-gamepad2.left_stick_y).add(elevatorMotion.outwardsMotion(gamepad2.left_stick_x));
+            capstone.actuate(gamepad2.left_stick_x);
+
+            OtherMotion elevatorMovement = elevatorMotion.upwardsMotion(gamepad2.left_stick_y*.5).add(elevatorMotion.outwardsMotion(-gamepad2.left_stick_x*.5));
 
             motion.executeRate(movement);
             elevatorMotion.executeRate(elevatorMovement);
